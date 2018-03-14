@@ -59,6 +59,7 @@ object Gen{
     }.find(_.isFailed).getOrElse(Passed(n))
   }
   def buildRandomStream[A,S](rng:RNG)(g: Gen[A]):Stream[A] = myStream.unfold(rng)(s=>Some(g.sample(rng)))
+
   def buildMsg[A](testCase: A,e:Exception):String =  s"test case: $testCase\n"+
     s"stack trace:\n ${e.getStackTrace.mkString("\n")})"
   def forAll[A](g: Int=>Gen[A])(f: A=>Boolean):Prop = Prop{
@@ -80,21 +81,14 @@ object Gen{
 
 
 
-object myStream{
 
-
-  def unfold[A,S](z: S)(f:S=>Option[(A,S)]): Stream[A] = f(z) match{
-    case None =>  Empty
-    case Some((a,s)) => Stream.cons(a,unfold(s)(f))
-  }
-}
 
 case object PropTest{
 
   def run[A](prop: Prop,testCaseNum: TestCaseNum= 100,max:MaxSize=100,rng:RNG= SimpleRNG(System.currentTimeMillis())):Unit =
     prop.run(max,testCaseNum,rng) match{
       case Failed(msg,n) => println(s"! Failed at $msg;passed tests: $n")
-      case Passed(n) => println("passed")
+      case Passed(n) => println(s"passed $n")
     }
 
 }

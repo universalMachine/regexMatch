@@ -5,10 +5,19 @@ package com.wang.regex
   def next: (A,RNG[A])
 }*/
 
+object myStream{
+
+
+  def unfold[A,S](z: S)(f:S=>Option[(A,S)]): Stream[A] = f(z) match{
+    case None =>  Stream.Empty
+    case Some((a,s)) => Stream.cons(a,unfold(s)(f))
+  }
+}
+
 trait RNG{
   def next: (Int,RNG)
-  def genFixedRand(n: Int):(List[Int],RNG)={
-    def go(list:List[Int],rng:RNG,n:Int):(List[Int],RNG) = {
+  def genFixedRand(n: Int):List[Int] ={
+    /*def go(list:List[Int],rng:RNG,n:Int):(List[Int],RNG) = {
       if(n != 0 ){
         val (result,newRng) = this.next
         go(result::list,newRng,n-1)
@@ -16,8 +25,11 @@ trait RNG{
       else
         (list,rng)
     }
-    go(List.empty[Int],this,n)
+    go(List.empty[Int],this,n)*/
+    myStream.unfold(this)(rng=>Some(rng.next)).take(n).toList
+
   }
+
 }
 
 
